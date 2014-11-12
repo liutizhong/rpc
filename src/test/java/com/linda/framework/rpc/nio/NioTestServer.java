@@ -20,6 +20,7 @@ public class NioTestServer implements RpcCallListener{
 	private RpcNioSelection selection;
 	private String host;
 	private int port;
+	//使用 AtomicBoolean 高效并发处理 “只初始化一次” 的功能要求：
 	private AtomicInteger receive = new AtomicInteger(0);
 	private AtomicBoolean started = new AtomicBoolean(false);
 	private ConcurrentHashMap<String, AtomicInteger> count = new ConcurrentHashMap<String, AtomicInteger>();
@@ -53,16 +54,25 @@ public class NioTestServer implements RpcCallListener{
 	}
 	
 	public static void main(String[] args) throws InterruptedException {
+		//
 		RpcNioSelection selection = new RpcNioSelection();
-		String ip = "127.0.0.1";
-		int port = 3333;
+		String ip = "localhost";
+		int port = 8000;
 		int c = 5;
+		//5个NioTestServer对象
 		List<NioTestServer> servers = createServers(selection,c,ip,port);
 		startService(servers);
 		Thread.currentThread().sleep(80000);
 		printResult(servers);
 	}
-	
+	/**
+	 * 构建NioTestServer对象
+	 * @param selection
+	 * @param c 个数
+	 * @param ip 
+	 * @param basePort 
+	 * @return
+	 */
 	public static List<NioTestServer> createServers(RpcNioSelection selection,int c,String ip,int basePort){
 		if(selection==null){
 			selection = new RpcNioSelection();
@@ -78,7 +88,10 @@ public class NioTestServer implements RpcCallListener{
 		}
 		return servers;
 	}
-
+	/**
+	 * 启动多个NioTestServer
+	 * @param servers
+	 */
 	public static void startService(List<NioTestServer> servers){
 		for(NioTestServer server:servers){
 			server.startService();

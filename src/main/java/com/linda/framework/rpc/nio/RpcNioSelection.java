@@ -22,7 +22,11 @@ import com.linda.framework.rpc.exception.RpcException;
 import com.linda.framework.rpc.exception.RpcNetExceptionHandler;
 import com.linda.framework.rpc.net.AbstractRpcConnector;
 import com.linda.framework.rpc.net.RpcOutputNofity;
-
+/**
+ * 管理管道，管理 客户端请求连接事件
+ * @author chenbaoyu
+ *
+ */
 public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionHandler{
 	
 	private Selector selector;
@@ -42,6 +46,7 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 	
 	public RpcNioSelection(){
 		try {
+			// 获得一个通道管理器
 			selector = Selector.open();
 			connectorCache = new ConcurrentHashMap<SocketChannel,RpcNioConnector>();
 			connectors = new CopyOnWriteArrayList<RpcNioConnector>();
@@ -55,6 +60,8 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 	public void register(RpcNioAcceptor acceptor){
 		ServerSocketChannel channel = acceptor.getServerSocketChannel();
 		try{
+			//将通道管理器和该通道绑定，并为该通道注册SelectionKey.OP_ACCEPT事件,注册该事件后，
+			//当该事件到达时，selector.select()会返回，如果该事件没到达selector.select()会一直阻塞。
 			channel.register(selector, SelectionKey.OP_ACCEPT);	
 			acceptorCache.put(acceptor.getServerSocketChannel(), acceptor);
 			acceptors.add(acceptor);
@@ -68,7 +75,10 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 		acceptorCache.remove(channel);
 		acceptors.remove(acceptor);
 	}
-	
+	/**
+	 * 在和客户端连接成功之后，为了可以接收到客户端的信息，需要给通道设置读的权限。
+	 * @param connector
+	 */
 	public void register(RpcNioConnector connector){
 		try{
 			SelectionKey selectionKey = connector.getChannel().register(selector,READ_OP);
@@ -104,7 +114,11 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 	public void stopService() {
 		this.stop = true;
 	}
-	
+	/**
+	 * 获得和客户端连接的通道
+	 * @param selectionKey
+	 * @return
+	 */
 	private boolean doAccept(SelectionKey selectionKey){
 		ServerSocketChannel server = (ServerSocketChannel)selectionKey.channel();
 		RpcNioAcceptor acceptor = acceptorCache.get(server);
@@ -222,11 +236,17 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 		}
 		this.logState();
 	}
-	
+	/**
+	 * 匹配selectionKey
+	 * @param selectionKey
+	 * @return
+	 */
 	private boolean doDispatchSelectionKey(SelectionKey selectionKey){
 		boolean result = false;
 		try{
+			// 客户端请求连接事件
 			if (selectionKey.isAcceptable()) {
+				logger.info("客户端请求连接事件......");
 				result = doAccept(selectionKey);
 			}
 			if (selectionKey.isReadable()) {
@@ -249,19 +269,24 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 				if(RpcNioSelection.this.hasTask()){
 					RpcNioSelection.this.runSelectTasks();
 				}
+				//初始化返回false;
 				boolean needSend = checkSend();
 				try {
 					inSelect.set(true);
 					if (needSend) {
+						//不会阻塞，不管什么通道就绪都立刻返回
 						selector.selectNow();
 					} else {
+						//阻塞到至少有一个通道在你注册的事件上就绪了。
 						selector.select();
 					}
 				} catch (IOException e) {
 					RpcNioSelection.this.handleNetException(e);
 				}
 				inSelect.set(false);
+				//获得selector中选中的项的迭代器，选中的项为注册的事件
 				Set<SelectionKey> selectionKeys = selector.selectedKeys();
+				logger.info(selectionKeys.size());
 				for (SelectionKey selectionKey : selectionKeys) {
 					doDispatchSelectionKey(selectionKey);
 				}

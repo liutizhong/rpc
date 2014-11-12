@@ -8,7 +8,11 @@ import com.linda.framework.rpc.exception.RpcException;
 import com.linda.framework.rpc.exception.RpcExceptionHandler;
 import com.linda.framework.rpc.exception.SimpleRpcExceptionHandler;
 import com.linda.framework.rpc.utils.RpcUtils;
-
+/**
+ * Server 
+ * @author chenbaoyu
+ *
+ */
 public class SimpleServerRemoteExecutor implements RemoteExecutor{
 	
 	protected ConcurrentHashMap<String,Object> exeCache = new ConcurrentHashMap<String,Object>();

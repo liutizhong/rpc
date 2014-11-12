@@ -35,13 +35,15 @@ public class NioTestClient implements RpcCallListener{
 	
 	public static void main(String[] args) throws InterruptedException {
 		RpcNioSelection selector = new RpcNioSelection();
-		String ip = "127.0.0.1";
-		int basePort = 3333;
+		String ip = "hadoop2";
+		int basePort = 8000;
 		int clientCount = 5;
 		int connectors = 2;
 		int threadCount = 2;
 		List<NioTestClient> clients = createClients(selector,ip,basePort,clientCount,connectors,threadCount);
+		System.out.println(clients.size());
 		startService(clients);
+		System.out.println("333333333333333");
 		Thread.currentThread().sleep(60000);
 		stopService(clients);
 		Thread.currentThread().sleep(10000);
@@ -62,7 +64,7 @@ public class NioTestClient implements RpcCallListener{
 			client.startService();
 			i++;
 		}
-		logger.info("start client count:"+i);
+		System.out.println("start client count:"+i);
 	}
 	
 	public static void stopService(List<NioTestClient> clients){

@@ -1,7 +1,11 @@
 package com.linda.framework.rpc;
 
 import com.linda.framework.rpc.utils.RpcUtils.RpcType;
-
+/**
+ * Executor
+ * @author chenbaoyu
+ *
+ */
 public interface RemoteExecutor extends Service{
 	
 	public void oneway(RemoteCall call);

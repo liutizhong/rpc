@@ -42,7 +42,7 @@ public class RpcServerTest {
 		server.addRpcFilter(new RpcLoginCheckFilter());
 		
 		server.startService();
-		
+		System.out.println("开启服务......");
 		logger.info("service started");
 	}
 

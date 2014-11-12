@@ -44,7 +44,8 @@ public class RpcNioAcceptor extends AbstractRpcAcceptor{
 			if(selection==null){
 				selection = new RpcNioSelection();
 			}
-			serverSocketChannel.bind(new InetSocketAddress(host,port));
+			logger.info("RpcNioAcceptor startService");
+			serverSocketChannel.socket().bind(new InetSocketAddress(port));
 			selection.register(this);
 			this.startListeners();
 			selection.startService();

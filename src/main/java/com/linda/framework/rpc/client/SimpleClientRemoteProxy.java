@@ -7,7 +7,11 @@ import java.lang.reflect.Proxy;
 import com.linda.framework.rpc.RemoteCall;
 import com.linda.framework.rpc.RemoteExecutor;
 import com.linda.framework.rpc.Service;
-
+/**
+ * Client
+ * @author chenbaoyu
+ *
+ */
 public class SimpleClientRemoteProxy implements InvocationHandler,Service{
 
 	private RemoteExecutor remoteExecutor;
