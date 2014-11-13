@@ -286,7 +286,6 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 				inSelect.set(false);
 				//获得selector中选中的项的迭代器，选中的项为注册的事件
 				Set<SelectionKey> selectionKeys = selector.selectedKeys();
-				logger.info(selectionKeys.size());
 				for (SelectionKey selectionKey : selectionKeys) {
 					doDispatchSelectionKey(selectionKey);
 				}

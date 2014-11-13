@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 import com.linda.framework.rpc.RpcObject;
-import com.linda.framework.rpc.Service;
 import com.linda.framework.rpc.net.AbstractRpcConnector;
 import com.linda.framework.rpc.net.RpcCallListener;
 import com.linda.framework.rpc.net.RpcSender;
@@ -27,7 +26,6 @@ public class NioTestClient implements RpcCallListener{
 	private AtomicInteger receive = new AtomicInteger(0);
 	private List<Thread> threads;
 	private AtomicBoolean started = new AtomicBoolean(false);
-	private AtomicInteger cccc = new AtomicInteger(0);
 	
 	public NioTestClient(RpcNioSelection selection){
 		this.selection = selection;
@@ -37,15 +35,14 @@ public class NioTestClient implements RpcCallListener{
 		RpcNioSelection selector = new RpcNioSelection();
 		String ip = "hadoop2";
 		int basePort = 8000;
-		int clientCount = 5;
-		int connectors = 2;
-		int threadCount = 2;
+		int clientCount = 5; //模拟客户端的个数
+		int connectors = 2; 
+		int threadCount = 2; //开启线程个数
 		List<NioTestClient> clients = createClients(selector,ip,basePort,clientCount,connectors,threadCount);
-		System.out.println(clients.size());
-		startService(clients);
-		System.out.println("333333333333333");
+		//实际返回15个客户端
+		startClients(clients);
 		Thread.currentThread().sleep(60000);
-		stopService(clients);
+		stopClients(clients);
 		Thread.currentThread().sleep(10000);
 		printResult(clients);
 	}
@@ -57,17 +54,16 @@ public class NioTestClient implements RpcCallListener{
 		client.threadCount = threadCount;
 		return client;
 	}
-	
-	public static void startService(List<NioTestClient> clients){
+	//开 启 多个客户端
+	public static void startClients(List<NioTestClient> clients){
 		int i = 0;
 		for(NioTestClient client:clients){
 			client.startService();
 			i++;
 		}
-		System.out.println("start client count:"+i);
 	}
 	
-	public static void stopService(List<NioTestClient> clients){
+	public static void stopClients(List<NioTestClient> clients){
 		for(NioTestClient client:clients){
 			client.stopService();
 		}
@@ -79,16 +75,16 @@ public class NioTestClient implements RpcCallListener{
 		}
 	}
 	
-	public static List<NioTestClient> createClients(RpcNioSelection selection,String ip,int port,int clients,int connectors,int threadCount){
+	public static List<NioTestClient> createClients(RpcNioSelection selection,String ip,int port,int clientcount,int connectors,int threadCount){
 		List<NioTestClient> list = new LinkedList<NioTestClient>();
 		int i=0;
-		while(i<clients){
+		while(i<clientcount){
 			NioTestClient client = new NioTestClient(selection);
 			client.host = ip;
 			client.port = port+i;
 			client.threadCount = threadCount;
-			
 			list.add(client);
+			//克隆两个客户端
 			int con = 0;
 			while(con<connectors){
 				list.add(client.clone());
@@ -143,7 +139,7 @@ public class NioTestClient implements RpcCallListener{
 		
 		@Override
 		public void run() {
-			String prefix = "rpc test index ";
+			String prefix = "I am the one! ";
 			long threadId = Thread.currentThread().getId();
 			logger.info("send thread:"+threadId+" start "+host+":"+port);
 			while(true){
@@ -173,8 +169,6 @@ public class NioTestClient implements RpcCallListener{
 			connector.addRpcCallListener(this);
 			connector.startService();
 			threads = startThread(connector,threadCount);
-			cccc.incrementAndGet();
-			logger.info("start time:"+cccc.get());
 		}
 
 	}

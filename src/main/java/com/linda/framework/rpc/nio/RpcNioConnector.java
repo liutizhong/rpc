@@ -11,7 +11,12 @@ import org.apache.log4j.Logger;
 import com.linda.framework.rpc.exception.RpcException;
 import com.linda.framework.rpc.net.AbstractRpcConnector;
 import com.linda.framework.rpc.utils.RpcUtils;
-
+/**
+ * 建立与RPC服务端的连接
+ * 初始化缓存存储
+ * @author chenbaoyu
+ *
+ */
 public class RpcNioConnector extends AbstractRpcConnector{
 	
 	private SocketChannel channel;
