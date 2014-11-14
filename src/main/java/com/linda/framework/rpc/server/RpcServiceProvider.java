@@ -1,5 +1,7 @@
 package com.linda.framework.rpc.server;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.linda.framework.rpc.RemoteCall;
@@ -50,6 +52,7 @@ public class RpcServiceProvider implements RpcCallListener,RpcFilter,Service{
 		}
 		
 	}
+	
 	
 	private RemoteCall deserializeCall(RpcObject rpc, RpcSender sender){
 		try{

@@ -28,7 +28,7 @@ public class NioTestServer implements RpcCallListener{
 	public NioTestServer(RpcNioSelection selection){
 		this.selection = selection;
 	}
-	
+	//server端开启服务
 	public void startService(){
 		if(!started.get()){
 			acceptor = new RpcNioAcceptor(selection);
@@ -58,17 +58,17 @@ public class NioTestServer implements RpcCallListener{
 		RpcNioSelection selection = new RpcNioSelection();
 		String ip = "localhost";
 		int port = 8000;
-		int c = 5;
+		int count = 5; //开启的server个数
 		//5个NioTestServer对象
-		List<NioTestServer> servers = createServers(selection,c,ip,port);
-		startService(servers);
+		List<NioTestServer> servers = createServers(selection,count,ip,port);
+		startServer(servers);
 		Thread.currentThread().sleep(80000);
 		printResult(servers);
 	}
 	/**
 	 * 构建NioTestServer对象
 	 * @param selection
-	 * @param c 个数
+	 * @param c server个数
 	 * @param ip 
 	 * @param basePort 
 	 * @return
@@ -92,7 +92,7 @@ public class NioTestServer implements RpcCallListener{
 	 * 启动多个NioTestServer
 	 * @param servers
 	 */
-	public static void startService(List<NioTestServer> servers){
+	public static void startServer(List<NioTestServer> servers){
 		for(NioTestServer server:servers){
 			server.startService();
 		}
@@ -110,6 +110,7 @@ public class NioTestServer implements RpcCallListener{
 	
 	@Override
 	public void onRpcMessage(RpcObject rpc, RpcSender sender) {
+		logger.info(rpc.toString()+"****");
 		sender.sendRpcObject(rpc, 1000);
 		RpcNioConnector connector = (RpcNioConnector)sender;
 		String clientKey = connector.getRemoteHost()+":"+connector.getRemotePort();
@@ -122,5 +123,4 @@ public class NioTestServer implements RpcCallListener{
 		}
 		receive.incrementAndGet();
 	}
-
 }

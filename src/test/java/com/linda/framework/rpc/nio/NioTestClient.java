@@ -14,6 +14,10 @@ import com.linda.framework.rpc.net.RpcCallListener;
 import com.linda.framework.rpc.net.RpcSender;
 import com.linda.framework.rpc.utils.RpcUtils.RpcType;
 
+/**
+ * @author chenbaoyu
+ * 2014-11-13下午4:16:40
+ */
 public class NioTestClient implements RpcCallListener{
 	
 	public static Logger logger = Logger.getLogger(NioTestClient.class);
@@ -33,17 +37,17 @@ public class NioTestClient implements RpcCallListener{
 	
 	public static void main(String[] args) throws InterruptedException {
 		RpcNioSelection selector = new RpcNioSelection();
-		String ip = "hadoop2";
+		String ip = "localhost";
 		int basePort = 8000;
-		int clientCount = 5; //模拟客户端的个数
+		int clientCount = 5; //模拟客户端的个数(并发请求)
 		int connectors = 2; 
 		int threadCount = 2; //开启线程个数
 		List<NioTestClient> clients = createClients(selector,ip,basePort,clientCount,connectors,threadCount);
 		//实际返回15个客户端
 		startClients(clients);
-		Thread.currentThread().sleep(60000);
+		Thread.currentThread().sleep(1000);
 		stopClients(clients);
-		Thread.currentThread().sleep(10000);
+		Thread.currentThread().sleep(1000);
 		printResult(clients);
 	}
 	
@@ -110,11 +114,14 @@ public class NioTestClient implements RpcCallListener{
 		return list;
 	}
 
-	@Override
-	public void onRpcMessage(RpcObject rpc, RpcSender sender) {
-		receive.incrementAndGet();
-	}
 	
+	/**
+	 * 创建RPC对象
+	 * @param str
+	 * @param id
+	 * @param index
+	 * @return
+	 */
 	public static RpcObject createRpc(String str,long id,int index){
 		RpcObject rpc = new RpcObject();
 		rpc.setType(RpcType.INVOKE);
@@ -124,7 +131,11 @@ public class NioTestClient implements RpcCallListener{
 		rpc.setLength(rpc.getData().length);
 		return rpc;
 	}
-
+	/**
+	 * 发送消息线程
+	 * @author chenbaoyu
+	 * 2014-11-13下午4:17:06
+	 */
 	public class SendThread extends Thread{
 
 		private AbstractRpcConnector connector;
@@ -179,5 +190,11 @@ public class NioTestClient implements RpcCallListener{
 		}
 		//connector.stopService();
 	}
+	
+	@Override
+	public void onRpcMessage(RpcObject rpc, RpcSender sender) {
+		receive.incrementAndGet();
+	}
+
 	
 }

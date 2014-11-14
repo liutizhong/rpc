@@ -61,7 +61,6 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 		ServerSocketChannel channel = acceptor.getServerSocketChannel();
 		try{
 			//将通道管理器和该通道绑定，并为该通道注册SelectionKey.OP_ACCEPT事件,注册该事件后，
-			//当该事件到达时，selector.select()会返回，如果该事件没到达selector.select()会一直阻塞。
 			channel.register(selector, SelectionKey.OP_ACCEPT);	
 			acceptorCache.put(acceptor.getServerSocketChannel(), acceptor);
 			acceptors.add(acceptor);
@@ -246,12 +245,13 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 		try{
 			// 客户端请求连接事件
 			if (selectionKey.isAcceptable()) {
-				logger.info("客户端请求连接事件......");
 				result = doAccept(selectionKey);
 			}
+			// 获得了可读的事件
 			if (selectionKey.isReadable()) {
 				result = doRead(selectionKey);
 			}
+			// 获得了可写的事件
 			if (selectionKey.isWritable()) {
 				result = doWrite(selectionKey);
 			}
@@ -286,6 +286,7 @@ public class RpcNioSelection implements Service,RpcOutputNofity,RpcNetExceptionH
 				inSelect.set(false);
 				//获得selector中选中的项的迭代器，选中的项为注册的事件
 				Set<SelectionKey> selectionKeys = selector.selectedKeys();
+				//System.out.println("**************"+selectionKeys.size());
 				for (SelectionKey selectionKey : selectionKeys) {
 					doDispatchSelectionKey(selectionKey);
 				}

@@ -1,5 +1,7 @@
 package com.linda.framework.rpc.net;
 
+import java.util.List;
+
 import com.linda.framework.rpc.RpcObject;
 
 
